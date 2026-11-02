@@ -18,17 +18,16 @@ also makes its own separate repository — that is where the project lives.
 3. Bottom blue bar: **✓ Build**, **→ Upload**, **🔌 Serial Monitor**.
    Or in the PlatformIO terminal: `pio run -t upload && pio device monitor`
 
-The board that ships in this repo is **Session 1's blink + hello**. Flash it
-first to prove your whole toolchain works.
+PlatformIO is currently configured to build the **Session 01 external LED
+example**. Flash it first to prove your whole toolchain works.
 
-> **The LED:** this board has no simple on/off LED — it has one addressable RGB
-> LED on **GPIO38** (check the silkscreen: ours reads `RGB@IO38`). The blink
-> uses it, but the real proof is the **serial "hello"**, which always works.
+> **The LED:** the selected homework sketch uses an external on/off LED on
+> GPIO40. The preserved `src/main.cpp` example instead uses the addressable
+> RGB LED on GPIO38 and a GPIO2 scope signal.
 
-> **GPIO2 is a test signal, not a mistake.** `setup()` starts a 1 kHz square
-> wave on GPIO2 and leaves it running. It's there for the oscilloscope block in
-> session 1 — probe it and you'll find a wave in seconds. The LED pin carries
-> pulses for only ~30 µs at a time, which is a much harder first capture.
+> **Serial output:** `Serial` uses the board's UART USB socket at 115200 baud
+> with the current configuration. The GPIO2 signal runs only when
+> `src/main.cpp` is selected.
 
 ---
 
@@ -36,8 +35,8 @@ first to prove your whole toolchain works.
 
 | Path | What |
 |---|---|
-| `src/main.cpp` | The **active** sketch that gets built + flashed. |
-| `examples/` | Per-session reference sketches — **copy one into `src/main.cpp`** to use it. |
+| `src/main.cpp` | The RGB LED + scope example; preserved and not currently built. |
+| `examples/` | Per-session sketches. `platformio.ini` selects the active build source. |
 | `include/` | Headers (e.g. `test_images.h` for session 6). |
 | `lib/` | Libraries — **drop your Edge Impulse model here** (session 4). |
 | `tools/` | Helper scripts (record/plot CSV, image → C array). |
@@ -46,8 +45,12 @@ first to prove your whole toolchain works.
 | `report-template.md` | The final project report skeleton — copy it into your team repo (session 10). |
 | `ceiling.md` | Your session-6 results table — fill it in during the vision lab. |
 
-PlatformIO only builds `src/` + `lib/`, so the files in `examples/` sit safely
-out of the build until you copy one in.
+PlatformIO builds the sketch selected in `platformio.ini` plus `lib/`. To switch
+to another session, update `src_dir` and `build_src_filter` there; this avoids
+copying over `src/main.cpp`.
+For later sessions that use `src/main.cpp`, remove this Session 01 source
+selection (`src_dir = examples` and `build_src_filter`) and follow that
+session's copy instructions below.
 
 ---
 
@@ -66,8 +69,7 @@ Moodle as a backup, so you can continue the lab while resolving a sync problem.
 
 ## Session by session
 
-- **Session 1 — first flash:** flash `src/main.cpp` as-is (blink + hello).
-  - Homework on real hardware? Copy `examples/session01_plain_led.cpp` → `src/main.cpp` and wire a plain LED on **GPIO40** (long leg → 220–330 Ω resistor → GPIO40, short leg → GND). Session 2 reuses the same pin.
+- **Session 1 — first flash:** the selected sketch blinks an external LED on **GPIO40** twice (150 ms on/off each) and waits 1000 ms before repeating. Wire a plain LED with its long leg connected through a 220–330 Ω resistor to GPIO40 and its short leg to GND. The serial monitor runs at **115200 baud**. `src/main.cpp` remains unchanged.
 - **Session 2 — sensor + data:**
   - Wire the MPU-6050: **3V3 → VCC, GND → GND, GPIO8 → SDA, GPIO9 → SCL** *(power off while wiring)*.
   - Copy `examples/session02_i2c_scanner.cpp` → `src/main.cpp`, flash → find `0x68`.
